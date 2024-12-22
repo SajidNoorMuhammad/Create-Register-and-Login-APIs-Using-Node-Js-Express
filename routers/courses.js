@@ -1,33 +1,19 @@
 import express from 'express'
+import Course from '../models/Course.js';
+import sendResponse from '../helper/sendResponse.js';
+import { authenticateAdmin, authenticateUser } from '../middleware/authentication.js';
 
 const router = express.Router();
 
-const courses = [
-    {
-        title: "Web & App Development",
-        duration: "1 Year",
-        id: 1
-    }
-]
-
-router.get("/", (req, res) => {
-    res.status(200).json({
-        error: false,
-        data: courses,
-        msg: "Courses Fetched Successfully"
-    })
+router.get("/", authenticateUser, async (req, res) => {
+    const course = await Course.find();
+    sendResponse(res, 200, false, course, "Courses Fetched Successfully")
 })
 
-router.post("/", (req, res) => {
-    const { title, duration } = req.body;
-    courses.push({ title, duration, id: courses.length + 1 });
-    console.log("title", title);
-    console.log("duration", duration)
-    res.status(201).json({
-        error: false,
-        data: courses,
-        msg: "Courses Added Successfully"
-    })
+router.post("/", authenticateAdmin, async (req, res) => {
+    let course = new Course(req.body);
+    course = await course.save();
+    sendResponse(res, 201, false, course, "Course Added Successfully")
 })
 
 router.get("/:id", (req, res) => {
