@@ -6,6 +6,7 @@ import 'dotenv/config'
 import mongoose from "mongoose";
 import taskRoutes from './routers/tasks.js'
 import authRoutes from './routers/auth.js'
+import cors from 'cors';
 
 const tasks = [
     {
@@ -38,6 +39,7 @@ function middleware(req, res, next) {
 
 app.use(express.json())
 app.use(middleware)
+app.use(cors());
 app.use('/user', userRoutes)
 app.use('/courses', coursesRoutes)
 app.use('/task', taskRoutes)
