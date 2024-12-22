@@ -23,3 +23,19 @@ export async function authenticateUser(req, res, next) {
         sendResponse(res, 500, true, null, "Something Went Wrong")
     }
 }
+
+
+export async function authenticateAdmin(req, res, next) {
+    const bearerToken = req?.headers?.authorization;
+    if (!bearerToken) return sendResponse(res, 403, true, null, "Token Not Access");
+
+    const token = bearerToken?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.AUTH_SECRET);
+
+    if (decoded.role == "admin") {
+        req.user = decoded;
+        next();
+    } else {
+        sendResponse(res, 403, true, null, "Only Admin Allow to access");
+    }
+}
