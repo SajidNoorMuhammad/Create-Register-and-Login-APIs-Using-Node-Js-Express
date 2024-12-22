@@ -1,4 +1,9 @@
 import express from 'express'
+import jwt from 'jsonwebtoken'
+import 'dotenv'
+import sendResponse from '../helper/sendResponse.js';
+import { authenticateUser } from '../middleware/authentication.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
@@ -46,6 +51,29 @@ router.get("/:id", (req, res) => {
         data: user,
         msg: "User Found Successfully"
     });
+})
+
+router.put('/', authenticateUser, async (req, res) => {
+    try {
+        const { city, country } = req.body;
+        const user = await User.findOneAndUpdate(
+            {
+                _id: req.user._id
+            },
+            {
+                city,
+                country
+            },
+            {
+                new: true
+            }
+        ).exec(true);
+        
+        sendResponse(res, 200, false, user, "User Updated Successfully")
+    }
+    catch (error) {
+        sendResponse(res, 500, true, null, "Something Went Wrong")
+    }
 })
 
 export default router
